@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slice Studio — Multi-Image Slicer</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+
+    <!-- ============================================================
+         SIDEBAR
+         ============================================================ -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <span class="brand-dot"></span>
+          <span>Slice Studio</span>
+        </div>
+        <button class="upload-btn" id="btnUpload" type="button">
+          <span class="btn-icon">＋</span>
+          <span>Upload Images</span>
+        </button>
+        <input type="file" id="fileInput" class="hidden-input" accept="image/*" multiple>
+      </div>
+
+      <div class="sidebar-section-title">
+        <span>□</span>
+        <span>Project Files</span>
+      </div>
+      <div class="file-list" id="fileList">
+        <div class="empty-files" id="emptyFiles">No images yet.<br>Upload one or more files to begin slicing.</div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="btn btn-export" id="btnExport" type="button" title="Slice every image and download a ZIP">
+          <span class="btn-icon">⬇</span><span class="btn-label">Export ZIP</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ============================================================
+         WORKSPACE — toolbar + canvas
+         ============================================================ -->
+    <main class="workspace">
+      <header class="toolbar">
+
+        <!-- Guides -->
+        <div class="panel-section">
+          <div class="section-header c-magenta">
+            <span>⏐</span><span>Guides</span>
+          </div>
+          <div class="section-body">
+            <button class="btn" id="btnAddVertical" type="button" title="Add a vertical guide">
+              <span class="btn-icon">⏐</span><span>Vertical</span>
+            </button>
+            <button class="btn" id="btnAddHorizontal" type="button" title="Add a horizontal guide">
+              <span class="btn-icon">⎯</span><span>Horizontal</span>
+            </button>
+            <button class="btn" id="btnClearGuides" type="button" title="Remove all guides from this image">
+              <span class="btn-icon">⨯</span><span>Clear</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Zoom -->
+        <div class="panel-section">
+          <div class="section-header c-blue">
+            <span>⤢</span><span>Zoom</span>
+          </div>
+          <div class="section-body">
+            <button class="btn" id="btnZoomOut" type="button" title="Zoom out">
+              <span class="btn-icon">－</span>
+            </button>
+            <span class="zoom-readout" id="zoomLabel">--</span>
+            <button class="btn" id="btnZoomIn" type="button" title="Zoom in">
+              <span class="btn-icon">＋</span>
+            </button>
+            <button class="btn" id="btnZoomReset" type="button" title="Fit image to screen">
+              <span class="btn-icon">⤢</span><span>Fit</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Split -->
+        <div class="panel-section">
+          <div class="section-header c-orange">
+            <span>Ⅲ</span><span>Split</span>
+          </div>
+          <div class="section-body">
+            <input type="number" id="splitCount" class="split-input" min="2" max="50" value="2" title="Number of equal parts">
+            <button class="btn" id="btnSplitCols" type="button" title="Replace vertical guides with N evenly spaced ones">
+              <span class="btn-icon">Ⅲ</span><span>Cols</span>
+            </button>
+            <button class="btn" id="btnSplitRows" type="button" title="Replace horizontal guides with N evenly spaced ones">
+              <span class="btn-icon">☰</span><span>Rows</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Output -->
+        <div class="panel-section">
+          <div class="section-header c-yellow">
+            <span>⊞</span><span>Output</span>
+          </div>
+          <div class="section-body">
+            <button class="btn" id="btnTogglePreview" type="button" title="Show row/column numbers and pixel dimensions for every slice">
+              <span class="btn-icon">⊞</span><span>Preview</span>
+            </button>
+            <button class="btn" id="btnToggleFixedSize" type="button" title="Pad or crop every exported slice onto a fixed-size canvas">
+              <span class="btn-icon">⬚</span><span>Fixed Size</span>
+            </button>
+            <input type="number" id="fixedWidth" class="split-input" min="1" max="10000" value="100" title="Output width (px)" disabled>
+            <span class="dim-sep">×</span>
+            <input type="number" id="fixedHeight" class="split-input" min="1" max="10000" value="100" title="Output height (px)" disabled>
+          </div>
+        </div>
+
+        <!-- Shortcuts hint -->
+        <div class="panel-section panel-section--flex">
+          <div class="section-header c-faint">
+            <span>?</span><span>Shortcuts</span>
+          </div>
+          <div class="section-body">
+            <span class="hint"><kbd>Space</kbd>+drag or middle-click to pan · scroll to zoom · double-click or <kbd>Del</kbd> to remove a guide · drop images anywhere to upload</span>
+          </div>
+        </div>
+
+      </header>
+
+      <div class="stage" id="stage">
+        <canvas id="canvas"></canvas>
+        <div class="guide-tooltip hidden" id="tooltip"></div>
+        <div class="status-bar hidden" id="statusBar">
+          <span id="statusPosition">—</span>
+          <span class="status-sep">·</span>
+          <span id="statusSlices">—</span>
+          <span class="status-sep">·</span>
+          <span id="statusImage">—</span>
+        </div>
+        <div class="empty-state" id="emptyState">
+          <div class="big">No image selected</div>
+          <div class="small">Upload one or more images from the left sidebar, then add vertical and horizontal guides to define your slices.</div>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+<script src="app.js"></script>
+</body>
+</html>
