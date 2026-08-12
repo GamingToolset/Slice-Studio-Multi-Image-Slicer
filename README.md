@@ -291,5 +291,10 @@ Contributions are welcome. Before submitting a change:
 
 ## License
 
-No license file is currently included. Unless a license is added by the project owner, the source code is not automatically granted an open-source license for reuse, modification, or distribution.
+This project is distributed under the **Apache-2.0 license**.
 
+See [`LICENSE`](./LICENSE) for full legal text.
+
+## ❤️ Support the Project
+
+If you find this tool useful, consider leaving a ⭐ on GitHub
